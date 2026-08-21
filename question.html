@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>最后的问题</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<canvas id="stars"></canvas>
+<canvas id="fx"></canvas>
+<button class="music-btn" id="musicBtn" title="播放背景音乐">&#9835;</button>
+
+<div class="page" id="askPage" style="justify-content:center;">
+  <h2 class="mid-title glow-text">llyt,</h2>
+  <h2 class="mid-title" style="margin-top:10px;">你可以再多多喜欢我一点吗? &#128536;</h2>
+  <div class="question-wrap">
+    <button class="btn-yes" id="yesBtn">好的呢 &#10084;&#65039;</button>
+    <button class="btn-no" id="noBtn">才不要 &#128530;</button>
+  </div>
+  <p class="sub-text" id="noMsg" style="margin-top:26px;">&nbsp;</p>
+</div>
+
+<div class="page hidden" id="endPage">
+  <h1 class="end-title glow-text" id="endLine1" style="margin-bottom:14px;">就知道你会答应 &#127881;</h1>
+  <h1 class="end-title glow-text" id="endLine2">说好了,要多多喜欢我哦 &#128149;</h1>
+  <p class="sub-text" id="endSub">那从今天起,我要把攒了很久的喜欢,都慢慢分给你。 &#127801;</p>
+  <div class="nav-row" style="margin-top:44px;">
+    <a class="btn-ghost" href="memory.html">&#8592; 回去看看情话</a>
+    <a class="btn-ghost" href="index.html">从头再看一遍 &#8634;</a>
+  </div>
+</div>
+
+<script src="shared.js"></script>
+<script>
+(function () {
+  var noBtn = document.getElementById('noBtn');
+  var noMsg = document.getElementById('noMsg');
+  var yesBtn = document.getElementById('yesBtn');
+  var msgs = ['再想想? \uD83E\uDD14', '不要嘛 ~ \uD83D\uDE21', '真的吗? \uD83D\uDE32', '你舍得吗? \uD83D\uDE22', '我不信 ~ \uD83D\uDE44', '好啦,快选左边! \uD83D\uDE18'];
+
+  noBtn.addEventListener('click', function () {
+    var i = Math.floor(Math.random() * msgs.length);
+    noMsg.textContent = msgs[i];
+    burstHearts(6);
+    var x = Math.random() * (window.innerWidth - 160);
+    var y = Math.random() * (window.innerHeight - 90);
+    noBtn.style.position = 'fixed';
+    noBtn.style.left = x + 'px';
+    noBtn.style.top = y + 'px';
+    noBtn.style.transform = 'rotate(' + (Math.random() * 40 - 20) + 'deg)';
+    noBtn.style.transition = 'all 0.25s ease';
+  });
+
+  yesBtn.addEventListener('click', function () {
+    document.getElementById('askPage').classList.add('hidden');
+    var end = document.getElementById('endPage');
+    end.classList.remove('hidden');
+    if (window.fireworks) fireworks(9000);
+    burstHearts(60);
+    setTimeout(function () { burstHearts(40); }, 2200);
+    setTimeout(function () { burstHearts(40); }, 4500);
+  });
+
+  var mb = document.getElementById('musicBtn');
+  mb.addEventListener('click', function () { toggleMusic(mb); });
+})();
+</script>
+</body>
+</html>

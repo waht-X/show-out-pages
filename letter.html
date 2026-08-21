@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>给你的信</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<canvas id="stars"></canvas>
+<button class="music-btn" id="musicBtn" title="播放背景音乐">&#9835;</button>
+<div class="page" style="justify-content:center;">
+  <h2 class="mid-title glow-text" style="margin-bottom:36px;">一封信,写给你 &#128140;</h2>
+  <div class="letter-box card" id="letterBox"></div>
+  <a class="btn hidden" id="nextBtn" href="memory.html" style="margin-top:38px;">下一页:想对你说的话 &#10024;</a>
+</div>
+<script src="shared.js"></script>
+<script>
+(function () {
+  var lines = [
+    '亲爱的 llyt,',
+    '',
+    '写下这些字的时候,窗外刚好起了风。',
+    '有些话在心里转了很久,今天想找个地方放一放。',
+    '于是就想到了你。',
+    '',
+    '认识你以后,我好像悄悄变了一点——',
+    '以前觉得日子就是日子,',
+    '现在会觉得,有你在的那天,风都温柔一些。',
+    '',
+    '你大概不知道,有些名字,',
+    '光是念出来,就会让人忍不住嘴角上扬。',
+    '',
+    '我没有要说破什么,也不敢说破什么。',
+    '只是想着,如果往后的故事里,',
+    '能多一个人一起翻阅,应该会很不错。',
+    '',
+    '—— 一个悄悄写了这些字的人'
+  ];
+
+  var box = document.getElementById('letterBox');
+  var i = 0;
+
+  function typeLine() {
+    if (i >= lines.length) {
+      var next = document.getElementById('nextBtn');
+      next.classList.remove('hidden');
+      burstHearts(24);
+      return;
+    }
+    var line = lines[i];
+    i++;
+    if (line === '') {
+      box.appendChild(document.createElement('br'));
+      setTimeout(typeLine, 220);
+      return;
+    }
+    var p = document.createElement('p');
+    box.appendChild(p);
+    var j = 0;
+    var t = setInterval(function () {
+      if (j < line.length) {
+        p.textContent = line.slice(0, ++j);
+      } else {
+        clearInterval(t);
+        setTimeout(typeLine, 420);
+      }
+    }, 55);
+  }
+
+  setTimeout(typeLine, 800);
+
+  var mb = document.getElementById('musicBtn');
+  mb.addEventListener('click', function () { toggleMusic(mb); });
+})();
+</script>
+</body>
+</html>

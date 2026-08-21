@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>想对你说的话</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<canvas id="stars"></canvas>
+<button class="music-btn" id="musicBtn" title="播放背景音乐">&#9835;</button>
+<div class="page" style="justify-content:center;">
+  <h2 class="mid-title glow-text">一些想对你说的话 &#10024;</h2>
+  <p class="sub-text">每一张卡片,都藏着一句真心话 &#128158; 点一点它</p>
+  <div class="memory-grid" id="grid"></div>
+  <div class="nav-row" style="margin-top:44px;">
+    <a class="btn-ghost" href="letter.html">&#8592; 再看一遍信</a>
+    <a class="btn hidden" id="nextBtn" href="question.html">最后一个问题 &#10084;&#65039;</a>
+  </div>
+</div>
+<script src="shared.js"></script>
+<script>
+(function () {
+  var cards = [
+    '\uD83C\uDF1F 遇见你之后,星星都变亮了。',
+    '\uD83D\uDC97 你的名字,是我听过最短的一首情诗。',
+    '\uD83C\uDF05 想陪你看每一次日出,和每一次晚霞。',
+    '\uD83D\uDC93 心跳声骗不了人,它在喊你的名字。',
+    '\uD83C\uDF04 只要你在,哪里都是风景。',
+    '\uD83D\uDC9C llyt,这三个字母,是我全部的喜欢。',
+    '\uD83D\uDC9D 你的笑,是我的充电站。',
+    '\uD83D\uDCDD 未来的计划里,我悄悄加上了你。'
+  ];
+
+  var grid = document.getElementById('grid');
+  var shown = 0;
+
+  cards.forEach(function (text, idx) {
+    var d = document.createElement('div');
+    d.className = 'card memory-card';
+    d.textContent = text;
+    d.style.transitionDelay = (idx * 0.12) + 's';
+    d.addEventListener('click', function () {
+      burstHearts(14);
+      d.style.background = 'rgba(255, 110, 196, 0.16)';
+      d.style.borderColor = 'rgba(255, 110, 196, 0.55)';
+      shown++;
+      if (shown >= cards.length) {
+        var next = document.getElementById('nextBtn');
+        next.classList.remove('hidden');
+      }
+    });
+    grid.appendChild(d);
+    setTimeout(function () { d.classList.add('show'); }, 400 + idx * 120);
+  });
+
+  var mb = document.getElementById('musicBtn');
+  mb.addEventListener('click', function () { toggleMusic(mb); });
+})();
+</script>
+</body>
+</html>
