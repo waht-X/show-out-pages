@@ -33,7 +33,6 @@
   ];
 
   var grid = document.getElementById('grid');
-  var shown = 0;
 
   cards.forEach(function (text, idx) {
     var d = document.createElement('div');
@@ -44,8 +43,8 @@
       burstHearts(14);
       d.style.background = 'rgba(255, 110, 196, 0.16)';
       d.style.borderColor = 'rgba(255, 110, 196, 0.55)';
-      shown++;
-      if (shown >= cards.length) {
+      if (!d.dataset.picked) {
+        d.dataset.picked = '1';
         var next = document.getElementById('nextBtn');
         next.classList.remove('hidden');
       }

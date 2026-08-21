@@ -117,53 +117,118 @@
   };
 
   var audioCtx = null, musicOn = false, musicTimer = null, musicStep = 0;
+  var master, delayNode, delayGain;
 
   function initAudio() {
     if (!audioCtx) {
       var AC = window.AudioContext || window.webkitAudioContext;
       if (AC) audioCtx = new AC();
+      if (audioCtx) {
+        master = audioCtx.createGain();
+        master.gain.value = 0.9;
+        delayNode = audioCtx.createDelay(1.0);
+        delayNode.delayTime.value = 0.38;
+        delayGain = audioCtx.createGain();
+        delayGain.gain.value = 0.32;
+        delayNode.connect(delayGain);
+        delayGain.connect(master);
+        master.connect(audioCtx.destination);
+      }
     }
     if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
   }
 
-  function playNote(freq, time, dur, vol, type) {
+  function playNote(freq, time, dur, vol, type, sendDelay) {
     if (!audioCtx) return;
     var o = audioCtx.createOscillator();
     var g = audioCtx.createGain();
     o.type = type || 'sine';
     o.frequency.value = freq;
-    o.connect(g); g.connect(audioCtx.destination);
+    o.connect(g);
+    g.connect(master);
+    if (sendDelay) {
+      var dg = audioCtx.createGain();
+      dg.gain.value = sendDelay;
+      o.connect(dg);
+      dg.connect(delayNode);
+    }
     var t0 = audioCtx.currentTime + time;
     g.gain.setValueAtTime(0.0001, t0);
-    g.gain.exponentialRampToValueAtTime(vol || 0.12, t0 + 0.03);
+    g.gain.exponentialRampToValueAtTime(vol || 0.1, t0 + 0.04);
     g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
     o.start(t0); o.stop(t0 + dur + 0.05);
   }
 
   var melody = [
-    440, 523.25, 659.25, 783.99,
-    659.25, 523.25, 440, 349.23,
-    392, 493.88, 587.33, 698.46,
-    587.33, 493.88, 440, 523.25
+    659.25, 523.25, 659.25, 880,
+    523.25, 440, 523.25, 698.46,
+    659.25, 523.25, 659.25, 783.99,
+    587.33, 493.88, 587.33, 783.99
   ];
+  var chords = [
+    [220, 261.63, 329.63],
+    [174.61, 220, 261.63],
+    [261.63, 329.63, 392],
+    [196, 246.94, 293.66]
+  ];
+  var bass = [110, 87.31, 130.81, 98];
+
+  function startMusic() {
+    if (musicOn) return;
+    musicOn = true;
+    musicStep = 0;
+    syncMusicBtn();
+    musicTimer = setInterval(function () {
+      var bar = Math.floor(musicStep / 4) % 4;
+      var beat = musicStep % 4;
+      var f = melody[musicStep % 16];
+      playNote(f, 0, 1.6, 0.09, 'sine', 0.25);
+      playNote(chords[bar][beat % 3] * 2, 0, 1.2, 0.035, 'triangle', 0.2);
+      if (beat === 0) playNote(bass[bar], 0, 2.0, 0.09, 'sine', 0.15);
+      if (beat === 2) playNote(chords[bar][2] * 2, 0, 0.9, 0.025, 'triangle');
+      musicStep++;
+    }, 520);
+  }
+
+  function stopMusic() {
+    musicOn = false;
+    clearInterval(musicTimer);
+    musicTimer = null;
+    syncMusicBtn();
+  }
+
+  function syncMusicBtn() {
+    var b = document.querySelector('.music-btn');
+    if (b) b.classList.toggle('on', musicOn);
+  }
 
   window.toggleMusic = function (btn) {
     initAudio();
-    if (musicOn) {
-      musicOn = false;
-      clearInterval(musicTimer);
-      musicTimer = null;
-      if (btn) btn.classList.remove('on');
-      return;
-    }
-    musicOn = true;
-    if (btn) btn.classList.add('on');
-    musicTimer = setInterval(function () {
-      var f = melody[musicStep % melody.length];
-      playNote(f, 0, 1.4, 0.09, 'sine');
-      playNote(f / 2, 0, 1.4, 0.06, 'triangle');
-      if (musicStep % 4 === 0) playNote(f * 2, 0.05, 0.9, 0.03, 'sine');
-      musicStep++;
-    }, 520);
+    if (musicOn) stopMusic();
+    else startMusic();
   };
+
+  window.autoStartMusic = function () {
+    initAudio();
+    if (!audioCtx) return;
+    if (audioCtx.state === 'running') { startMusic(); return; }
+    var unlock = function () {
+      initAudio();
+      if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+      setTimeout(function () { if (audioCtx && audioCtx.state === 'running') startMusic(); }, 120);
+      cleanup();
+    };
+    var cleanup = function () {
+      document.removeEventListener('click', unlock);
+      document.removeEventListener('touchstart', unlock);
+      document.removeEventListener('keydown', unlock);
+    };
+    document.addEventListener('click', unlock);
+    document.addEventListener('touchstart', unlock);
+    document.addEventListener('keydown', unlock);
+  };
+
+  window.addEventListener('load', function () {
+    setTimeout(window.autoStartMusic, 600);
+  });
 })();
